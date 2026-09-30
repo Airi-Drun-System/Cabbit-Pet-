@@ -1,1 +1,8 @@
-
+[{
+      "relation": ["delegate_permission/common.handle_all_urls"],
+      "target": {
+        "namespace": "android_app",
+        "package_name": "com.cabbitpet.app",
+        "sha256_cert_fingerprints": ["00:72:F3:DF:1E:F1:F3:99:E4:86:80:C9:40:84:56:C8:66:A9:A5:AE:6A:B4:D6:ED:AE:CB:EF:AB:AE:B9:23:49"]
+      }
+    }]
