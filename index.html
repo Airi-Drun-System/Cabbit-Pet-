@@ -251,6 +251,7 @@
   <div class="sheetHead"><h3>Настройки</h3><button class="x" type="button" data-close>&#215;</button></div>
   <div class="setRow"><span>Звук</span><button class="seg on" type="button" id="sSound">Включён</button></div>
   <div class="setRow"><span>Графика</span><div class="segs" id="sGfx"><button type="button" data-g="high">Высокая</button><button type="button" data-g="mid">Средняя</button><button type="button" data-g="low">Низкая</button></div></div>
+  <div class="setRow"><span>Время суток</span><button class="seg on" type="button" id="sTod">Всегда день</button></div>
   <div class="setRow"><span>Размытие фона</span><button class="seg on" type="button" id="sDof">Включено</button></div>
   <div class="setRow col"><span>Имя кэббита</span><div class="row"><input class="nameIn" id="sName" maxlength="14" placeholder="Имя кэббита"><button class="btn small" type="button" id="sNameSave">OK</button></div></div>
   <a class="setLink" href="https://www.instagram.com/koty_vezde/" target="_blank" rel="noopener">Персонаж кэббит придуман автором koty_vezde</a>
@@ -862,7 +863,7 @@ function drawCabbit(q, x, y, s, st){
 }
 
 function skyColors(){
-  const h = new Date().getHours() + new Date().getMinutes() / 60;
+  const h = LS.get('tod', 'day') === 'day' ? 11 : new Date().getHours() + new Date().getMinutes() / 60;
   if (h >= 7 && h < 17) return { a: '#8fd0ff', b: '#d8f0ff', sun: 1, night: 0, beam: 'rgba(255,245,200,' };
   if (h >= 17 && h < 20) return { a: '#ff9a7a', b: '#ffd8a0', sun: 0.6, night: 0.2, beam: 'rgba(255,190,130,' };
   if (h >= 5 && h < 7) return { a: '#9aa8ff', b: '#ffc8b0', sun: 0.4, night: 0.3, beam: 'rgba(255,210,190,' };
@@ -1880,11 +1881,37 @@ const blurMat = new THREE.ShaderMaterial({
     }`,
   depthTest: false, depthWrite: false, toneMapped: false
 });
+const brightMat = new THREE.ShaderMaterial({
+  uniforms: { tColor: { value: null }, texel: { value: new THREE.Vector2() } },
+  vertexShader: POST_VS,
+  fragmentShader: `uniform sampler2D tColor; uniform vec2 texel; varying vec2 vUv;
+    void main(){
+      vec3 c = vec3(0.0);
+      for (int y = -1; y <= 1; y += 2) for (int x = -1; x <= 1; x += 2) c += texture2D(tColor, vUv + vec2(float(x), float(y)) * texel * 1.5).rgb;
+      c *= 0.25;
+      float l = max(c.r, max(c.g, c.b));
+      float k = smoothstep(0.75, 1.9, l);
+      gl_FragColor = vec4(min(c * k, vec3(16.0)), 1.0);
+    }`,
+  depthTest: false, depthWrite: false, toneMapped: false
+});
+const gaussMat = new THREE.ShaderMaterial({
+  uniforms: { tSrc: { value: null }, dir: { value: new THREE.Vector2() } },
+  vertexShader: POST_VS,
+  fragmentShader: `uniform sampler2D tSrc; uniform vec2 dir; varying vec2 vUv;
+    void main(){
+      vec3 c = texture2D(tSrc, vUv).rgb * 0.2270;
+      c += (texture2D(tSrc, vUv + dir * 1.3846).rgb + texture2D(tSrc, vUv - dir * 1.3846).rgb) * 0.3162;
+      c += (texture2D(tSrc, vUv + dir * 3.2308).rgb + texture2D(tSrc, vUv - dir * 3.2308).rgb) * 0.0703;
+      gl_FragColor = vec4(c, 1.0);
+    }`,
+  depthTest: false, depthWrite: false, toneMapped: false
+});
 const compMat = new THREE.ShaderMaterial({
   uniforms: { tColor: { value: null }, tBlur: { value: null }, tDepth: { value: null }, res: { value: new THREE.Vector2(1, 1) }, cnear: { value: 0.1 }, cfar: { value: 120 }, focus: { value: 4.6 }, aperture: { value: 6 },
-    exposure: { value: 1 }, vig: { value: 0.12 }, sat: { value: 1.04 }, warm: { value: new THREE.Vector3(1.0, 1.0, 0.99) }, dof: { value: 1 }, glow: { value: 0.08 } },
+    exposure: { value: 1 }, vig: { value: 0.16 }, sat: { value: 1.1 }, warm: { value: new THREE.Vector3(1.0, 1.0, 0.99) }, dof: { value: 1 }, glow: { value: 0.08 }, tBloom: { value: null }, bloom: { value: 0.22 }, hazeCol: { value: new THREE.Color('#ffe2c0') }, haze: { value: 0.16 } },
   vertexShader: POST_VS,
-  fragmentShader: `uniform sampler2D tColor; uniform sampler2D tBlur; uniform vec2 res; uniform float exposure, vig, sat, dof, glow; uniform vec3 warm; varying vec2 vUv;` + POST_DEPTH + `
+  fragmentShader: `uniform sampler2D tColor; uniform sampler2D tBlur; uniform vec2 res; uniform sampler2D tBloom; uniform float exposure, vig, sat, dof, glow, bloom, haze; uniform vec3 warm, hazeCol; varying vec2 vUv;` + POST_DEPTH + `
     vec3 rrt(vec3 v){ vec3 a = v * (v + 0.0245786) - 0.000090537; vec3 b = v * (0.983729 * v + 0.4329510) + 0.238081; return a / b; }
     vec3 aces(vec3 c){
       const mat3 I = mat3(vec3(0.59719, 0.07600, 0.02840), vec3(0.35458, 0.90834, 0.13383), vec3(0.04823, 0.01566, 0.83777));
@@ -1897,14 +1924,17 @@ const compMat = new THREE.ShaderMaterial({
       vec3 col = texture2D(tColor, vUv).rgb;
       vec4 bl = texture2D(tBlur, vUv);
       if (dof > 0.5){
-        float k = smoothstep(0.14, 0.75, cocOf(vUv)) * 0.8;
+        float k = smoothstep(0.07, 0.5, cocOf(vUv)) * 0.94;
         col = mix(col, bl.rgb, k);
       }
-      vec3 hi = max(bl.rgb - vec3(2.2), vec3(0.0));
-      col += hi * glow;
+      float dd = vdist(vUv);
+      col = mix(col, hazeCol, smoothstep(5.5, 18.0, dd) * haze);
+      col += texture2D(tBloom, vUv).rgb * bloom;
       col = toSrgb(aces(col));
       float l = dot(col, vec3(0.2126, 0.7152, 0.0722));
       col = mix(vec3(l), col, sat) * warm;
+      col += vec3(0.035, 0.02, -0.02) * smoothstep(0.45, 1.0, l) + vec3(-0.012, -0.004, 0.03) * (1.0 - smoothstep(0.0, 0.45, l));
+      col = mix(col, col * col * (3.0 - 2.0 * col), 0.12);
       vec2 q = vUv - 0.5; q.x *= res.x / res.y;
       col *= mix(1.0, smoothstep(0.95, 0.22, length(q)), vig);
       col += (hash(vUv * res + 3.1) - 0.5) / 255.0;
@@ -1921,13 +1951,16 @@ function postEnsure(){
   renderer.getDrawingBufferSize(postSize);
   const w = postSize.x, h = postSize.y;
   if (POST.rt && POST.w === w && POST.h === h) return;
-  for (const k of ['rt', 'a', 'b']) if (POST[k]){ POST[k].dispose(); if (POST[k].depthTexture) POST[k].depthTexture.dispose(); }
+  for (const k of ['rt', 'a', 'b', 'c', 'd']) if (POST[k]){ POST[k].dispose(); if (POST[k].depthTexture) POST[k].depthTexture.dispose(); }
   const dt = new THREE.DepthTexture(w, h); dt.type = THREE.UnsignedIntType;
   POST.rt = new THREE.WebGLRenderTarget(w, h, { type: THREE.HalfFloatType, depthTexture: dt, depthBuffer: true, samples: POST.w2 ? 4 : 0 });
   const hw = Math.max(1, Math.round(w / 2)), hh = Math.max(1, Math.round(h / 2));
   const o = { type: THREE.HalfFloatType, depthBuffer: false, minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter };
   POST.a = new THREE.WebGLRenderTarget(hw, hh, o); POST.b = new THREE.WebGLRenderTarget(hw, hh, o);
-  POST.w = w; POST.h = h; POST.hw = hw; POST.hh = hh;
+  const qw = Math.max(1, Math.round(w / 4)), qh = Math.max(1, Math.round(h / 4));
+  POST.c = new THREE.WebGLRenderTarget(qw, qh, o); POST.d = new THREE.WebGLRenderTarget(qw, qh, o);
+  POST.w = w; POST.h = h; POST.hw = hw; POST.hh = hh; POST.qw = qw; POST.qh = qh;
+  brightMat.uniforms.tColor.value = POST.rt.texture; brightMat.uniforms.texel.value.set(1 / w, 1 / h); compMat.uniforms.tBloom.value = POST.c.texture;
   prepMat.uniforms.tColor.value = POST.rt.texture; prepMat.uniforms.tDepth.value = dt; prepMat.uniforms.texel.value.set(1 / w, 1 / h);
   compMat.uniforms.tColor.value = POST.rt.texture; compMat.uniforms.tDepth.value = dt; compMat.uniforms.tBlur.value = POST.a.texture; compMat.uniforms.res.value.set(w, h);
 }
@@ -1935,15 +1968,15 @@ function postPass(mat, target){ postQuad.material = mat; renderer.setRenderTarge
 function postRender(focusDist, dt){
   if (!postWanted()){ renderer.render(scene, camera); return; }
   postEnsure();
-  POST.focus += (focusDist - POST.focus) * (1 - Math.exp(-6 * (dt || 0.016)));
-  const ap = gfx === 'high' ? 2.8 : 2.6;
+  if (POST.snap){ POST.focus = focusDist; POST.snap = false; } else POST.focus += (focusDist - POST.focus) * (1 - Math.exp(-6 * (dt || 0.016)));
+  const ap = gfx === 'high' ? 3.6 : 3.2;
   for (const U of [prepMat.uniforms, compMat.uniforms]){ U.focus.value = POST.focus; U.cnear.value = camera.near; U.cfar.value = camera.far; U.aperture.value = ap; }
   compMat.uniforms.dof.value = POST.dofOn ? 1 : 0;
   compMat.uniforms.exposure.value = renderer.toneMappingExposure;
   renderer.setRenderTarget(POST.rt);
   renderer.render(scene, camera);
   if (POST.dofOn){
-    const ms = Math.max(1, POST.hh * 0.0032);
+    const ms = Math.max(1, POST.hh * 0.0042);
     blurMat.uniforms.maxStep.value = ms;
     postPass(prepMat, POST.a);
     blurMat.uniforms.tSrc.value = POST.a.texture; blurMat.uniforms.dir.value.set(1 / POST.hw, 0); postPass(blurMat, POST.b);
@@ -1953,6 +1986,12 @@ function postRender(focusDist, dt){
       blurMat.uniforms.tSrc.value = POST.a.texture; blurMat.uniforms.dir.value.set(0.7071 / POST.hw, 0.7071 / POST.hh); postPass(blurMat, POST.b);
       blurMat.uniforms.tSrc.value = POST.b.texture; blurMat.uniforms.dir.value.set(0.7071 / POST.hw, -0.7071 / POST.hh); postPass(blurMat, POST.a);
     }
+  }
+  postPass(brightMat, POST.c);
+  for (let i = 0; i < (gfx === 'high' ? 2 : 1); i++){
+    const sp = 1 + i * 1.6;
+    gaussMat.uniforms.tSrc.value = POST.c.texture; gaussMat.uniforms.dir.value.set(sp / POST.qw, 0); postPass(gaussMat, POST.d);
+    gaussMat.uniforms.tSrc.value = POST.d.texture; gaussMat.uniforms.dir.value.set(0, sp / POST.qh); postPass(gaussMat, POST.c);
   }
   postPass(compMat, null);
 }
@@ -2764,7 +2803,10 @@ const SCOOP_DUR = 1.6;
 const FLOOR_S = 0.86;
 const cab = { room: pet.sleep ? 'bed' : pet.at, x: 0, z: 0.5, y: 0, s: 0.86, tx: 0, tz: 0.9, face: 1, hop: 0, vy: 0, sq: 0, walk: 0, joy: 0, chew: 0, bite: null, idle: 3, state: pet.sleep ? 'bed' : 'floor', jump: null, pending: null, speed: 1.8, shake: 0, water: 0 };
 let camX = ROOM_X[pet.at], camFrom = camX, camK = 1, viewRoom = pet.at;
-let camPan = 0, camFz = 0.9, camFy = 0, camZoom = clamp(+LS.get('zoom', '0.75') || 0.75, 0, 1), camZoomS = camZoom;
+let camPan = 0, camFz = 0.9, camFy = 0, camZoom = clamp(+(LS.get('zoom2', '1')), 0, 1), camZoomS = camZoom, camPitch = 0.12, camPitchS = 0.12, camSnap = true;
+const fadeOv = document.createElement('div');
+Object.assign(fadeOv.style, { position: 'absolute', inset: '0', background: '#1a0b33', opacity: '0', pointerEvents: 'none' });
+document.getElementById('room').after(fadeOv);
 const easeIO = (k) => k < 0.5 ? 2 * k * k : 1 - Math.pow(-2 * k + 2, 2) / 2;
 function spot(kind){ const r = rooms[cab.room]; return r && r.spots[kind]; }
 function obstacles(){ return (rooms[cab.room] && rooms[cab.room].obst) || []; }
@@ -2848,27 +2890,28 @@ function applyLights(){
     sun.intensity = 0.95;
   } else if (n || sleeping){
     sun.color.set(lit ? '#ffc488' : '#8f9cff');
-    sun.intensity = sleeping ? (lit ? 0.16 : 0.1) : (lit ? 0.24 : 0.2);
+    sun.intensity = sleeping ? (lit ? 0.26 : 0.16) : (lit ? 0.4 : 0.28);
   } else {
     sun.color.set('#fff2dc');
     sun.intensity = 0.95;
   }
-  hemi.color.set(n ? '#7a78c0' : '#eef2ff'); hemi.groundColor.set(n ? '#2a1a30' : '#b07858');
-  hemi.intensity = sleeping ? 0.1 : n ? 0.16 : hasWin ? 0.46 : 0.38;
-  amb.intensity = sleeping ? 0.04 : n ? 0.07 : 0.08; fillL.intensity = sleeping ? 0.06 : n ? 0.14 : 0.18;
+  hemi.color.set(n ? '#7a78c0' : '#eef2ff'); hemi.groundColor.set(n ? '#4a3048' : '#b07858');
+  hemi.intensity = sleeping ? 0.14 : n ? 0.22 : hasWin ? 0.46 : 0.38;
+  amb.intensity = sleeping ? 0.08 : n ? 0.1 : 0.08; fillL.intensity = sleeping ? 0.12 : n ? 0.2 : 0.18;
   cabMat.emissiveIntensity = sleeping ? 0.14 : n ? 0.26 : 0.3;
   if (R.light1){ P1.position.set(ROOM_X[viewRoom] + R.light1.x, R.light1.y, R.light1.z); }
-  P1.intensity = on1 ? (R.light1.kind === 'chand' ? 1.5 : R.light1.kind === 'always' ? (n ? 1.0 : 0.45) : 1.1) : 0;
+  P1.intensity = on1 ? (R.light1.kind === 'chand' ? 1.25 : R.light1.kind === 'always' ? (n ? 1.0 : 0.45) : 1.1) : 0;
   P1.castShadow = !!(GFX[gfx].point && on1 && (n || sleeping));
   (R.glow1 || []).forEach(m => m.emissiveIntensity = on1 ? 1.2 : 0);
   if (R.light2){ P2.position.set(ROOM_X[viewRoom] + R.light2.x, R.light2.y, R.light2.z); }
   P2.intensity = on2 ? (R.light2.kind === 'night' ? 1.2 : 1.4) : 0;
   P2.color.set(R.light2 && R.light2.kind === 'night' && pet.room.night === 'mush' ? '#ff9ab8' : '#ffc070');
   (R.glow2 || []).forEach(m => m.emissiveIntensity = on2 ? 1.0 : 0);
-  renderer.toneMappingExposure = sleeping ? 0.95 : n ? 1.02 : hasWin ? 0.92 : 0.9;
+  renderer.toneMappingExposure = sleeping ? 0.98 : n ? 0.98 : hasWin ? 0.92 : 0.9;
   beamMat.color.set(n ? '#9fb4ff' : '#ffe8b8'); beamMat.opacity = sleeping ? 0.015 : n ? 0.025 : 0.03;
   dustMat.opacity = n ? 0.2 : 0.45;
   setOutsideLight(sk.night, sk.sun);
+  compMat.uniforms.hazeCol.value.set(n ? '#3a3468' : sk.sun < 1 ? '#ffd2a8' : '#ffe8cc'); compMat.uniforms.haze.value = n ? 0.08 : (viewRoom === 'bath' || viewRoom === 'toilet') ? 0.06 : 0.12;
   retex(skyTex);
 }
 function toggleLight(which){
@@ -2931,7 +2974,7 @@ function goRoom(id, dir){
   const i0 = ROOMS.findIndex(r => r.id === pet.at), i1 = ROOMS.findIndex(r => r.id === id);
   if (dir == null) dir = i1 > i0 ? 1 : -1;
   resetModes(); closeSheets();
-  camFrom = camX; camK = 0;
+  camFrom = camX; camK = 0.0001;
   pet.at = id; viewRoom = id; lightKey = '';
   buildBeam(id);
   if (!pet.sleep){
@@ -3128,8 +3171,10 @@ cv3.addEventListener('pointermove', (e) => {
   if (!drag) return;
   const d = Math.hypot(e.clientX - drag.x, e.clientY - drag.y);
   if (Math.hypot(e.clientX - drag.sx, e.clientY - drag.sy) > 10) drag.moved = true;
+  const ddy = e.clientY - drag.y;
   drag.x = e.clientX; drag.y = e.clientY;
   if (!drag.moved) return;
+  if (!drag.onCab && Math.abs(e.clientY - drag.sy) > Math.abs(e.clientX - drag.sx) * 0.8){ camPitch = clamp(camPitch + ddy * 0.0045, -0.2, 0.48); drag.pitched = true; return; }
   rayFrom(e);
   const hc = hitCab();
   if (!hc) return;
@@ -3152,7 +3197,7 @@ cv3.addEventListener('pointerup', (e) => {
   const d = drag; drag = null;
   if (d.moved){
     const dx = e.clientX - d.sx, dy = e.clientY - d.sy;
-    if (!d.onCab && Math.abs(dx) > 60 && Math.abs(dy) < 70 && performance.now() - d.t < 700 && mode === 'idle' && !busyAnim()) stepRoom(dx < 0 ? 1 : -1);
+    if (!d.onCab && !d.pitched && Math.abs(dx) > 60 && Math.abs(dy) < 70 && performance.now() - d.t < 700 && mode === 'idle' && !busyAnim()) stepRoom(dx < 0 ? 1 : -1);
     return;
   }
   if (camK < 1) return;
@@ -3161,7 +3206,7 @@ cv3.addEventListener('pointerup', (e) => {
 });
 cv3.addEventListener('pointercancel', () => { drag = null; });
 const pinchPts = new Map(); let pinch0 = 0, pinchZ = 0;
-function setZoom(z){ camZoom = clamp(z, 0, 1); LS.set('zoom', camZoom.toFixed(2)); }
+function setZoom(z){ camZoom = clamp(z, 0, 1); LS.set('zoom2', camZoom.toFixed(2)); }
 function pinchDist(){ const a = [...pinchPts.values()]; return Math.hypot(a[0].x - a[1].x, a[0].y - a[1].y); }
 cv3.addEventListener('pointerdown', (e) => { pinchPts.set(e.pointerId, { x: e.clientX, y: e.clientY }); if (pinchPts.size === 2){ drag = null; pinch0 = pinchDist(); pinchZ = camZoom; } });
 cv3.addEventListener('pointermove', (e) => { if (!pinchPts.has(e.pointerId)) return; pinchPts.set(e.pointerId, { x: e.clientX, y: e.clientY }); if (pinchPts.size === 2 && pinch0 > 0){ drag = null; setZoom(pinchZ + (pinchDist() - pinch0) / 260); } });
@@ -3213,7 +3258,12 @@ function update(dt){
     drawNeeds(); save();
   }
   infoAcc += dt; if (infoAcc > 0.5){ infoAcc = 0; updateSleepInfo(); }
-  if (camK < 1){ camK = Math.min(1, camK + dt / 0.6); camX = lerp(camFrom, ROOM_X[pet.at], easeIO(camK)); }
+  if (camK < 1){
+    const k0 = camK; camK = Math.min(1, camK + dt / 0.75);
+    if (k0 < 0.45 && camK >= 0.45){ camX = ROOM_X[pet.at]; camSnap = true; }
+    fadeOv.style.opacity = String(camK < 0.45 ? easeIO(camK / 0.45) : 1 - easeIO((camK - 0.45) / 0.55));
+    if (camK >= 1) fadeOv.style.opacity = '0';
+  }
   cab.joy = Math.max(0, cab.joy - dt); cab.sq = Math.max(0, cab.sq - dt * 4); cab.chew = Math.max(0, cab.chew - dt * 0.8); cab.shake = Math.max(0, cab.shake - dt * 2);
   if (cab.jump){
     const j = cab.jump; j.k = Math.min(1, j.k + dt / j.dur);
@@ -3328,16 +3378,21 @@ function render3d(dt, now){
   skyAcc += dt; if (skyAcc > 0.15 && rooms[viewRoom] && rooms[viewRoom].win){ skyAcc = 0; skyT = T; retex(skyTex); }
   monAcc += dt; if (monAcc > 0.09 && Math.abs(camX - ROOM_X.living) < 7){ monAcc = 0; jumpT = T; retex(monitorTex); }
   clockAcc += dt; if (clockAcc > 10){ clockAcc = 0; const RL = rooms.living; if (RL && RL.clockObj) RL.clockObj.userData.tick(); }
-  const follow = camK >= 1 && cab.room === viewRoom && !MG;
+  const follow = cab.room === viewRoom && !MG;
   const tz = follow ? clamp(cab.z, -1.9, 1.6) : 0.9, ty = follow ? clamp(cab.y + cab.hop * 0.3, 0, 1.2) : 0;
   const panT = follow ? clamp(cab.x * 0.6, -1.25, 1.25) : 0;
-  const kf = 1 - Math.exp(-1.7 * dt);
+  const kf = camSnap ? 1 : 1 - Math.exp(-1.7 * dt);
   camPan += (panT - camPan) * kf; camFz += (tz - camFz) * kf; camFy += (ty - camFy) * kf;
   camZoomS += (camZoom - camZoomS) * (1 - Math.exp(-10 * dt));
+  camPitchS += (camPitch - camPitchS) * (1 - Math.exp(-12 * dt));
   const zk = camZoomS, cx = camX + camPan * (0.25 + 0.75 * zk);
-  const nz = clamp(camFz + 4.0, 2.9, 5.0), ny = 1.95 + camFy * 0.55;
-  camera.position.set(cx, 2.95 + (ny - 2.95) * zk, 7.3 + (nz - 7.3) * zk);
-  camera.lookAt(cx, 1.2 + (0.78 + camFy * 0.75 - 1.2) * zk, -0.3 + (camFz - 1.15 + 0.3) * zk);
+  const nz = clamp(camFz + 4.3, 3.0, 5.4), ny = 0.74 + camFy * 0.85;
+  const ey = 2.95 + (ny - 2.95) * zk, ez = 7.3 + (nz - 7.3) * zk;
+  camera.position.set(cx, ey, ez);
+  const lz = -0.3 + (camFz - 0.4 + 0.3) * zk, dist = Math.max(1, ez - lz);
+  const ly = 1.2 + (0.78 + camFy * 0.8 - 1.2) * zk + camPitchS * dist * (0.4 + 0.6 * zk);
+  camera.lookAt(cx, ly, lz);
+  if (camSnap){ camSnap = false; POST.snap = true; }
   for (const k in rooms) rooms[k].g.visible = Math.abs(ROOM_X[k] - camX) < 7.1;
   const vis = cabVisible() || camK < 1;
   cabGroup.visible = vis && (cab.room === viewRoom || Math.abs(ROOM_X[cab.room] - camX) < 7);
@@ -3461,8 +3516,10 @@ function renderSettings(){
   document.getElementById('sSound').textContent = soundOn ? 'Включён' : 'Выключен';
   document.querySelectorAll('#sGfx button').forEach(b => b.classList.toggle('on', b.dataset.g === gfx));
   document.getElementById('sName').value = pet.name;
+  const td = document.getElementById('sTod'); td.textContent = LS.get('tod', 'day') === 'day' ? 'Всегда день' : 'Как в жизни';
   const d = document.getElementById('sDof'); d.textContent = !POST.ok || gfx === 'low' ? 'Недоступно' : POST.dofOn ? 'Включено' : 'Выключено'; d.classList.toggle('on', POST.ok && gfx !== 'low' && POST.dofOn);
 }
+document.getElementById('sTod').addEventListener('click', () => { LS.set('tod', LS.get('tod', 'day') === 'day' ? 'real' : 'day'); lightKey = ''; retex(skyTex); sfx.tap(); renderSettings(); });
 document.getElementById('sDof').addEventListener('click', () => { if (!POST.ok || gfx === 'low') return; POST.dofOn = !POST.dofOn; LS.set('dof', POST.dofOn ? '1' : '0'); sfx.tap(); renderSettings(); });
 document.getElementById('sSound').addEventListener('click', () => { soundOn = !soundOn; LS.set('sound', soundOn ? '1' : '0'); if (soundOn){ audio(); sfx.tap(); } renderSettings(); });
 document.querySelectorAll('#sGfx button').forEach(b => b.addEventListener('click', () => { gfx = b.dataset.g; LS.set('gfx', gfx); applyGfx(); sfx.tap(); renderSettings(); }));
