@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <meta name="theme-color" content="#2a1650">
-<meta name="description" content="Cabbit pet! — заботься о своём кэббите: корми, мой, играй и укладывай спать">
+<meta name="description" content="Cabbit pet! — заботься о своём котокролике: корми, мой, играй и укладывай спать">
 <title>Cabbit pet!</title>
 <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
@@ -29,6 +29,15 @@
   .top{position:absolute;left:0;right:0;top:0;display:flex;align-items:center;justify-content:space-between;padding:calc(env(safe-area-inset-top,0px) + 12px) 14px 0;pointer-events:none;z-index:3;}
   .pill{pointer-events:auto;display:flex;align-items:center;gap:8px;padding:7px 14px 7px 8px;border-radius:999px;background:rgba(24,10,48,.62);box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.12),0 6px 18px rgba(0,0,0,.25);font-size:16px;}
   .lvl{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(180deg,#ffe38a,#ff9f45);color:#3a1a00;font-size:15px;box-shadow:0 3px 0 #b8660e;}
+  .candyIc{position:relative;display:inline-block;width:18px;height:14px;margin:0 9px;border-radius:50%;background:repeating-linear-gradient(60deg,#ff8a2a 0 4px,#ffd9a8 4px 7px);box-shadow:0 0 0 2px #7a2a10;flex:0 0 auto;}
+  .candyIc::before,.candyIc::after{content:"";position:absolute;top:1px;width:0;height:0;border-top:6px solid transparent;border-bottom:6px solid transparent;}
+  .candyIc::before{left:-9px;border-right:9px solid #ff8a2a;}
+  .candyIc::after{right:-9px;border-left:9px solid #ff8a2a;}
+  .item .pr .candyIc{width:13px;height:10px;margin:0 7px;}
+  .item .pr .candyIc::before,.item .pr .candyIc::after{top:0;border-top-width:5px;border-bottom-width:5px;}
+  #candyPill[hidden]{display:none;}
+  .hwBanner{margin:10px auto 0;padding:6px 14px;border-radius:999px;background:linear-gradient(90deg,#ff8a2a,#8a3ac8);color:#fff;font-size:14px;font-weight:700;box-shadow:0 3px 0 #3a1a5a;display:inline-block;}
+  .hwBanner[hidden]{display:none;}
   .coin{width:22px;height:22px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff6c0,#ffd34d 45%,#e09a10);box-shadow:inset 0 0 0 2px #b8780e;}
   .needs{position:absolute;left:0;right:0;top:calc(env(safe-area-inset-top,0px) + 62px);display:flex;justify-content:center;gap:6px;z-index:3;pointer-events:none;}
   .need{pointer-events:auto;cursor:pointer;width:62px;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:11px;opacity:.95;}
@@ -169,17 +178,18 @@
   <div class="menuIn">
     <div class="logo"><b>Cabbit</b><span>pet!</span></div>
     <div class="sub">из вселенной Cabbit Jump</div>
+    <div class="hwBanner" id="hwBanner" hidden>Хэллоуин в доме котокролика · до 3 ноября</div>
     <button class="btn big" type="button" id="mPlay">Играть</button>
     <button class="btn ghost big" type="button" id="mSet">Настройки</button>
-    <div class="credit">Персонаж кэббит придуман автором koty_vezde</div>
+    <div class="credit">Персонаж котокролик придуман автором koty_vezde</div>
   </div>
 </div>
 <div id="app">
   <div id="stage">
     <canvas id="room"></canvas>
     <div class="top">
-      <div class="pill" id="namePill"><div class="lvl" id="lvl">1</div><span id="petName">Кэббит</span></div>
-      <div class="rightTop"><div class="pill" id="coinPill"><div class="coin"></div><span id="coins">0</span></div><button class="pill hudBtn" id="hudMenu" type="button" aria-label="Меню"><i></i><i></i><i></i></button></div>
+      <div class="pill" id="namePill"><div class="lvl" id="lvl">1</div><span id="petName">Котокролик</span></div>
+      <div class="rightTop"><div class="pill" id="candyPill" hidden><i class="candyIc"></i><span id="candies">0</span></div><div class="pill" id="coinPill"><div class="coin"></div><span id="coins">0</span></div><button class="pill hudBtn" id="hudMenu" type="button" aria-label="Меню"><i></i><i></i><i></i></button></div>
     </div>
     <div class="needs" id="needs"></div>
     <div class="combo" id="combo"></div>
@@ -213,9 +223,9 @@
 </div></div>
 
 <div class="sheet" id="nameSheet"><div class="sheetIn">
-  <div class="sheetHead"><h3>Мой кэббит</h3><button class="x" type="button" data-close>&#215;</button></div>
+  <div class="sheetHead"><h3>Мой котокролик</h3><button class="x" type="button" data-close>&#215;</button></div>
   <div class="stats" id="stats"></div>
-  <input class="nameIn" id="nameIn" maxlength="14" placeholder="Имя кэббита">
+  <input class="nameIn" id="nameIn" maxlength="14" placeholder="Имя котокролика">
   <div class="row"><button class="btn" type="button" id="nameSave">Сохранить имя</button></div>
   <div class="row" style="margin-top:10px"><button class="btn ghost" type="button" id="soundBtn">Звук: вкл</button></div>
 </div></div>
@@ -225,7 +235,7 @@
   <h2 id="mTitle"></h2>
   <p id="mText"></p>
   <div class="unl" id="mUnl" hidden></div>
-  <input class="in" id="mInput" maxlength="14" placeholder="Имя кэббита" hidden>
+  <input class="in" id="mInput" maxlength="14" placeholder="Имя котокролика" hidden>
   <button class="btn" type="button" id="mBtn">Хорошо</button>
 </div></div>
 
@@ -254,8 +264,8 @@
   <div class="setRow"><span>Время суток</span><button class="seg on" type="button" id="sTod">Всегда день</button></div>
   <div class="setRow"><span>Размытие в движении</span><button class="seg" type="button" id="sMb">Выключено</button></div>
   <div class="setRow"><span>Размытие фона</span><button class="seg on" type="button" id="sDof">Включено</button></div>
-  <div class="setRow col"><span>Имя кэббита</span><div class="row"><input class="nameIn" id="sName" maxlength="14" placeholder="Имя кэббита"><button class="btn small" type="button" id="sNameSave">OK</button></div></div>
-  <a class="setLink" href="https://www.instagram.com/koty_vezde/" target="_blank" rel="noopener">Персонаж кэббит придуман автором koty_vezde</a>
+  <div class="setRow col"><span>Имя котокролика</span><div class="row"><input class="nameIn" id="sName" maxlength="14" placeholder="Имя котокролика"><button class="btn small" type="button" id="sNameSave">OK</button></div></div>
+  <a class="setLink" href="https://www.instagram.com/koty_vezde/" target="_blank" rel="noopener">Персонаж котокролик придуман автором koty_vezde</a>
   <button class="btn ghost" type="button" id="sReset">Сбросить прогресс</button>
 </div></div>
 
@@ -380,7 +390,8 @@ const FOODS = [
   { id: 'donut', n: 'Пончик', p: 25, food: 20, fun: 22, xp: 5, lv: 5 },
   { id: 'sushi', n: 'Роллы', p: 40, food: 40, fun: 16, xp: 7, lv: 6 },
   { id: 'burger', n: 'Бургер', p: 55, food: 60, fun: 16, xp: 9, lv: 8 },
-  { id: 'golden', n: 'Золотая морковка', p: 150, food: 100, fun: 40, xp: 25, lv: 10 }
+  { id: 'golden', n: 'Золотая морковка', p: 150, food: 100, fun: 40, xp: 25, lv: 10 },
+  { id: 'candy', n: 'Конфета', p: 0, candy: 1, food: 6, fun: 16, xp: 3, ev: 1 }
 ];
 const WEAR = {
   hat: [
@@ -390,7 +401,8 @@ const WEAR = {
     { id: 'flower', n: 'Венок', p: 200, lv: 3 },
     { id: 'party', n: 'Колпак', p: 180, lv: 4 },
     { id: 'wizard', n: 'Шляпа мага', p: 350, lv: 6 },
-    { id: 'crown', n: 'Корона', p: 600, lv: 9 }
+    { id: 'crown', n: 'Корона', p: 600, lv: 9 },
+    { id: 'witch', n: 'Шляпа ведьмы', p: 0, candy: 40, ev: 1 }
   ],
   glasses: [
     { id: 'none', n: 'Без очков', p: 0 },
@@ -404,11 +416,15 @@ const WEAR = {
     { id: 'bowtie', n: 'Бабочка', p: 80 },
     { id: 'bell', n: 'Колокольчик', p: 140, lv: 2 },
     { id: 'scarf', n: 'Шарф', p: 220, lv: 4 },
-    { id: 'medal', n: 'Медаль', p: 500, lv: 10 }
+    { id: 'medal', n: 'Медаль', p: 500, lv: 10 },
+    { id: 'vampire', n: 'Воротник вампира', p: 0, candy: 80, ev: 1 }
   ]
 };
 const WEAR_TABS = [['hat', 'Шапки'], ['glasses', 'Очки'], ['neck', 'На шею']];
 const itemOf = (slot, id) => ROOM[catOf(slot)].find(x => x.id === id) || ROOM[catOf(slot)][0];
+// Хэллоуин: весь октябрь и до 3 ноября. #hw в адресе - включить для проверки.
+const HW_ON = (() => { try { if (location.hash === '#hw') return true; } catch (e) {} const d = new Date(), m = d.getMonth(); return m === 9 || (m === 10 && d.getDate() <= 3); })();
+const HW_YEAR = new Date().getFullYear();
 const todayKey = () => { const d = new Date(); return d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate(); };
 
 function defaultPet(){
@@ -416,7 +432,7 @@ function defaultPet(){
   return { v: 3, name: '', hunger: 70, clean: 90, fun: 70, energy: 85, toilet: 80, t: now, born: now, sleep: false, xp: 0, lvl: 1, coins: 150,
     room: { wall: 'cream', floor: 'wood', rug: 'none', lamp: 'none', plant: 'none', poster: 'none', window: 'basic', sofa: 'chair', bwall: 'dusk', bfloor: 'carpet', bed: 'basic', night: 'basic', bwindow: 'basic', tiles: 'blue', tub: 'classic', toy: 'none', twall: 'mint', potty: 'tray' },
     at: 'living', tray: 0, puddle: null, wear: { hat: 'none', glasses: 'none', neck: 'none' }, mgBest: {}, mgEarn: { d: '', n: 0 },
-    owned: [], earn: { d: '', n: 0 }, daily: { d: '', streak: 0 }, best: 0, stats: { fed: 0, washed: 0, catches: 0, slept: 0, potty: 0 }, tips: {} };
+    owned: [], earn: { d: '', n: 0 }, daily: { d: '', streak: 0 }, best: 0, stats: { fed: 0, washed: 0, catches: 0, slept: 0, potty: 0 }, tips: {}, candy: 0, candyDay: { d: '', n: 0 } };
 }
 function normPet(p){
   const d = defaultPet();
@@ -444,6 +460,8 @@ function normPet(p){
   if (!o.daily || typeof o.daily !== 'object') o.daily = { d: '', streak: 0 };
   o.stats = Object.assign(defaultPet().stats, p.stats || {});
   o.tips = Object.assign({}, p.tips || {});
+  o.candy = Math.max(0, o.candy | 0);
+  if (!o.candyDay || typeof o.candyDay !== 'object') o.candyDay = { d: '', n: 0 };
   return o;
 }
 let pet = (() => { try { return normPet(JSON.parse(LS.get('save', 'null'))); } catch (e) { return defaultPet(); } })();
@@ -640,9 +658,10 @@ function bumpCoins(bad){
 
 function refreshHud(){
   document.getElementById('coins').textContent = String(pet.coins);
+  const cp = document.getElementById('candyPill'); cp.hidden = !(HW_ON || pet.candy > 0); document.getElementById('candies').textContent = String(pet.candy);
   document.getElementById('lvl').textContent = String(pet.lvl);
   document.getElementById('lvl').style.setProperty('--p', String(Math.round(pet.xp / xpNeed() * 100)));
-  document.getElementById('petName').textContent = pet.name || 'Кэббит';
+  document.getElementById('petName').textContent = pet.name || 'Котокролик';
   drawNeeds();
 }
 const NEEDS = [['hunger', 'Сытость'], ['clean', 'Чистота'], ['fun', 'Веселье'], ['toilet', 'Туалет'], ['energy', 'Бодрость']];
@@ -1238,6 +1257,15 @@ function drawLamp(q, id, t, dark){
 function drawFood(q, f, x, y, s){
   q.save(); q.translate(x, y); q.scale(s, s); q.lineJoin = 'round'; q.lineCap = 'round';
   if (f === 'carrot'){ drawIcon(q, 'carrot'); }
+  else if (f === 'candy'){
+    q.strokeStyle = '#7a2a10'; q.lineWidth = 2.5; q.fillStyle = '#ff8a2a';
+    for (const sd of [-1, 1]){ q.beginPath(); q.moveTo(sd * 10, 0); q.lineTo(sd * 22, -9); q.lineTo(sd * 19, 0); q.lineTo(sd * 22, 9); q.closePath(); q.fill(); q.stroke(); }
+    q.beginPath(); q.ellipse(0, 0, 13, 10, 0, 0, 6.2832); q.fill(); q.stroke();
+    q.save(); q.beginPath(); q.ellipse(0, 0, 13, 10, 0, 0, 6.2832); q.clip(); q.fillStyle = '#ffd9a8';
+    for (let k = -2; k <= 2; k++){ q.beginPath(); q.moveTo(k * 8 - 4, -11); q.lineTo(k * 8, -11); q.lineTo(k * 8 + 5, 11); q.lineTo(k * 8 + 1, 11); q.closePath(); q.fill(); }
+    q.restore();
+    q.fillStyle = 'rgba(255,255,255,.6)'; q.beginPath(); q.ellipse(-4, -4, 4, 2, -0.4, 0, 6.2832); q.fill();
+  }
   else if (f === 'apple'){
     q.fillStyle = '#ff5a5a'; q.strokeStyle = '#8a1c1c'; q.lineWidth = 2.5;
     q.beginPath(); q.moveTo(0, -10); q.bezierCurveTo(10, -18, 20, -6, 16, 6); q.bezierCurveTo(12, 18, 2, 18, 0, 14); q.bezierCurveTo(-2, 18, -12, 18, -16, 6); q.bezierCurveTo(-20, -6, -10, -18, 0, -10); q.closePath(); q.fill(); q.stroke();
@@ -2403,6 +2431,123 @@ function buildGarland(){
   return g;
 }
 
+// ---------- Хэллоуин: декор комнат ----------
+const hwArt = {};
+function hwFaceTex(){
+  return hwArt.face || (hwArt.face = ctex(128, 128, (q) => {
+    q.fillStyle = '#ffc23a'; q.shadowColor = '#ff7a1e'; q.shadowBlur = 10;
+    q.beginPath(); q.moveTo(26, 60); q.lineTo(46, 30); q.lineTo(58, 62); q.fill();
+    q.beginPath(); q.moveTo(70, 62); q.lineTo(82, 30); q.lineTo(102, 60); q.fill();
+    q.beginPath(); q.moveTo(22, 78);
+    for (const [a, b] of [[34, 92], [44, 82], [54, 98], [64, 84], [74, 98], [84, 82], [94, 92], [106, 78]]) q.lineTo(a, b);
+    q.quadraticCurveTo(64, 122, 22, 78); q.fill();
+  }));
+}
+function hwGlowTex(){
+  return hwArt.glow || (hwArt.glow = ctex(64, 64, (q) => { const g2 = q.createRadialGradient(32, 32, 0, 32, 32, 32); g2.addColorStop(0, 'rgba(255,170,60,.85)'); g2.addColorStop(1, 'rgba(255,120,30,0)'); q.fillStyle = g2; q.fillRect(0, 0, 64, 64); }));
+}
+function hwPumpkin(s){
+  const g = new THREE.Group();
+  const cols = ['#e8661a', '#ff8a2a', '#f47820', '#ff8a2a'];
+  for (let i = 0; i < 4; i++){ const m = sph(0.22, std(cols[i]), 16, 12); m.scale.set(0.62, 0.8, 1); m.position.set((i - 1.5) * 0.11, 0.2, 0); outline(m, 1.06); g.add(m); }
+  const st = cyl(0.03, 0.045, 0.14, std('#5a7a2e'), 8); st.position.set(0, 0.42, 0); st.rotation.z = 0.25; g.add(st);
+  const face = new THREE.Mesh(new THREE.PlaneGeometry(0.36, 0.36), new THREE.MeshBasicMaterial({ map: hwFaceTex(), transparent: true, depthWrite: false, toneMapped: false }));
+  face.position.set(0, 0.21, 0.225); g.add(face);
+  const gl = new THREE.Sprite(new THREE.SpriteMaterial({ map: hwGlowTex(), blending: THREE.AdditiveBlending, transparent: true, depthWrite: false, toneMapped: false, opacity: 0.45 }));
+  gl.position.set(0, 0.22, 0.3); gl.scale.setScalar(0.6); g.add(gl);
+  g.userData.glow = gl;
+  g.scale.setScalar(s);
+  shadowy(g);
+  face.castShadow = false; gl.castShadow = false;
+  return g;
+}
+function hwCandles(){
+  const g = new THREE.Group(), flames = [];
+  const flameTex = hwArt.flame || (hwArt.flame = ctex(32, 64, (q) => { const g2 = q.createRadialGradient(16, 40, 1, 16, 36, 22); g2.addColorStop(0, 'rgba(255,255,220,1)'); g2.addColorStop(0.35, 'rgba(255,200,80,.95)'); g2.addColorStop(1, 'rgba(255,120,20,0)'); q.fillStyle = g2; q.beginPath(); q.moveTo(16, 4); q.quadraticCurveTo(30, 40, 16, 60); q.quadraticCurveTo(2, 40, 16, 4); q.fill(); }));
+  [[0, 0.24], [0.12, 0.16], [-0.1, 0.12]].forEach(([x, h], i) => {
+    const c = cyl(0.035, 0.038, h, std('#fff2d8'), 12); c.position.set(x, h / 2 + 0.02, (i % 2) * 0.06); outline(c, 1.08); g.add(c);
+    const fl = new THREE.Sprite(new THREE.SpriteMaterial({ map: flameTex, transparent: true, depthWrite: false, toneMapped: false, blending: THREE.AdditiveBlending }));
+    fl.position.set(x, h + 0.08, (i % 2) * 0.06); fl.scale.set(0.07, 0.13, 1); fl.userData.ph = i * 1.7; g.add(fl); flames.push(fl);
+  });
+  const plate = cyl(0.2, 0.2, 0.02, std('#9a8a7a'), 20); plate.position.y = 0.01; g.add(plate);
+  g.userData.flames = flames;
+  shadowy(g);
+  flames.forEach(f => f.castShadow = false);
+  return g;
+}
+function hwWeb(){
+  const tex = hwArt.web || (hwArt.web = ctex(256, 256, (q) => {
+    q.strokeStyle = 'rgba(70,58,92,.8)'; q.lineWidth = 3;
+    const rays = 6;
+    for (let k = 0; k <= rays; k++){ const a = k / rays * Math.PI / 2; q.beginPath(); q.moveTo(0, 0); q.lineTo(Math.cos(a) * 250, Math.sin(a) * 250); q.stroke(); }
+    for (let ring = 1; ring <= 6; ring++){
+      const r = ring * 38; q.beginPath();
+      for (let k = 0; k <= rays; k++){
+        const a = k / rays * Math.PI / 2, x = Math.cos(a) * r, y = Math.sin(a) * r;
+        if (!k) q.moveTo(x, y);
+        else { const pa = (k - 0.5) / rays * Math.PI / 2; q.quadraticCurveTo(Math.cos(pa) * r * 0.86, Math.sin(pa) * r * 0.86, x, y); }
+      }
+      q.stroke();
+    }
+    q.strokeStyle = 'rgba(70,58,92,.7)'; q.lineWidth = 2;
+    q.beginPath(); q.moveTo(150, 120); q.lineTo(150, 196); q.stroke();
+    q.fillStyle = '#1e1428'; q.beginPath(); q.ellipse(150, 204, 9, 11, 0, 0, 6.2832); q.fill();
+    q.strokeStyle = '#1e1428'; q.lineWidth = 2.5;
+    for (const sd of [-1, 1]) for (let k = 0; k < 3; k++){ q.beginPath(); q.moveTo(150, 200 + k * 4); q.lineTo(150 + sd * 18, 194 + k * 8); q.stroke(); }
+  }));
+  return new THREE.Mesh(new THREE.PlaneGeometry(1.1, 1.1), new THREE.MeshBasicMaterial({ map: tex, transparent: true, depthWrite: false, opacity: 0.85 }));
+}
+function hwBunting(){
+  const g = new THREE.Group(), bats = [];
+  const pts = []; for (let i = 0; i <= 20; i++){ const x = -RWID / 2 + 0.3 + i / 20 * (RWID - 0.6); pts.push(new THREE.Vector3(x, RHT - 0.22 - Math.sin(i / 20 * Math.PI * 2) * 0.07 - 0.05, RBK + 0.06)); }
+  const curve = new THREE.CatmullRomCurve3(pts);
+  g.add(new THREE.Mesh(new THREE.TubeGeometry(curve, 60, 0.008, 4, false), std('#5a4a60')));
+  const tex = hwArt.bat || (hwArt.bat = ctex(128, 64, (q) => {
+    q.fillStyle = '#2a1a40'; q.strokeStyle = '#ff8a2a'; q.lineWidth = 3; q.lineJoin = 'round';
+    q.beginPath(); q.moveTo(64, 34);
+    q.quadraticCurveTo(44, 6, 8, 14); q.quadraticCurveTo(22, 26, 14, 40); q.quadraticCurveTo(30, 34, 36, 48); q.quadraticCurveTo(46, 38, 64, 48);
+    q.quadraticCurveTo(82, 38, 92, 48); q.quadraticCurveTo(98, 34, 114, 40); q.quadraticCurveTo(106, 26, 120, 14); q.quadraticCurveTo(84, 6, 64, 34);
+    q.closePath(); q.fill(); q.stroke();
+    q.beginPath(); q.ellipse(64, 34, 9, 12, 0, 0, 6.2832); q.fill();
+    q.beginPath(); q.moveTo(57, 25); q.lineTo(59, 14); q.lineTo(63, 23); q.moveTo(71, 25); q.lineTo(69, 14); q.lineTo(65, 23); q.fill();
+    q.fillStyle = '#ffd34d'; q.beginPath(); q.arc(60, 31, 2.4, 0, 6.2832); q.arc(68, 31, 2.4, 0, 6.2832); q.fill();
+  }));
+  const batMat = new THREE.MeshStandardMaterial({ map: tex, transparent: true, alphaTest: 0.1, roughness: 0.8 });
+  for (let i = 0; i < 7; i++){
+    const p = curve.getPoint((i + 0.5) / 7);
+    const piv = new THREE.Group(); piv.position.set(p.x, p.y, p.z + 0.01); g.add(piv);
+    const m = new THREE.Mesh(new THREE.PlaneGeometry(0.42, 0.21), batMat);
+    m.position.y = -0.13; piv.add(m); piv.userData.ph = i * 1.3; bats.push(piv);
+  }
+  g.userData.bats = bats;
+  return g;
+}
+function addHalloween(g, info, id){
+  const glows = [], flames = [], bats = [];
+  const put = (o, x, y, z, ry) => { o.position.set(x, y, z); if (ry) o.rotation.y = ry; g.add(o); return o; };
+  const pump = (x, z, s, ry) => { const p = put(hwPumpkin(s), x, 0, z, ry || 0); glows.push(p.userData.glow); info.obst.push({ x, z, r: 0.32 * s + 0.12 }); return p; };
+  const candles = (x, z) => { const c = put(hwCandles(), x, 0, z); flames.push(...c.userData.flames); info.obst.push({ x, z, r: 0.25 }); };
+  put(hwWeb(), -RWID / 2 + 0.55, RHT - 0.55, RBK + 0.015);
+  const webR = put(hwWeb(), RWID / 2 - 0.55, RHT - 0.55, RBK + 0.015); webR.scale.x = -1;
+  if (id === 'living'){
+    pump(-1.3, 0.95, 1.15, 0.35); pump(1.55, 0.3, 0.75, -0.5); candles(1.2, 0.95);
+    const b = hwBunting(); g.add(b); bats.push(...b.userData.bats);
+  } else if (id === 'bed'){
+    pump(-1.25, 0.95, 1.0, 0.35); pump(1.3, 0.95, 0.7, -0.4);
+  } else if (id === 'bath'){
+    pump(-1.3, 0.9, 1.0, 0.35); candles(1.25, 0.95);
+    const b = hwBunting(); g.add(b); bats.push(...b.userData.bats);
+  } else {
+    pump(-1.25, 0.95, 1.0, 0.35); pump(1.35, 0.95, 0.7, -0.4);
+    const b = hwBunting(); g.add(b); bats.push(...b.userData.bats);
+  }
+  info.hwFx = (T) => {
+    glows.forEach((gl, i) => gl.scale.setScalar(0.58 + Math.sin(T * 7 + i) * 0.04 + Math.sin(T * 13 + i * 2) * 0.025));
+    flames.forEach(fl => { const k = 1 + Math.sin(T * 11 + fl.userData.ph) * 0.12 + Math.sin(T * 23 + fl.userData.ph) * 0.06; fl.scale.set(0.07 * (2 - k), 0.13 * k, 1); });
+    bats.forEach(b => { b.rotation.z = Math.sin(T * 1.3 + b.userData.ph) * 0.12; });
+  };
+}
+
 const aoLin = ctex(16, 128, (q, w, h) => { const g2 = q.createLinearGradient(0, 0, 0, h); g2.addColorStop(0, 'rgba(0,0,0,.3)'); g2.addColorStop(0.3, 'rgba(0,0,0,.13)'); g2.addColorStop(0.65, 'rgba(0,0,0,.05)'); g2.addColorStop(1, 'rgba(0,0,0,0)'); q.fillStyle = g2; q.fillRect(0, 0, w, h); }, false);
 const aoRad = ctex(128, 128, (q) => { const g2 = q.createRadialGradient(64, 64, 6, 64, 64, 64); g2.addColorStop(0, 'rgba(0,0,0,.38)'); g2.addColorStop(0.45, 'rgba(0,0,0,.22)'); g2.addColorStop(1, 'rgba(0,0,0,0)'); q.fillStyle = g2; q.fillRect(0, 0, 128, 128); }, false);
 const aoMatL = new THREE.MeshBasicMaterial({ map: aoLin, color: '#1a1020', transparent: true, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -1, polygonOffsetUnits: -1 });
@@ -2501,6 +2646,7 @@ function buildRoom(id){
     const cl2 = buildCeilLamp(); place(cl2, 0, 0, 0.3); info.glow1 = cl2.userData.glows; info.light1 = { x: 0, y: RHT - 0.35, z: 0.3, kind: 'always' };
     info.spots.enter = { l: { x: -2.5, z: 1.2 }, r: { x: 2.5, z: 1.2 } };
   }
+  if (HW_ON) addHalloween(g, info, id);
   addAO(g, info);
   scene.add(g);
   return info;
@@ -2936,6 +3082,7 @@ function applyLights(){
   dustMat.opacity = n ? 0.2 : 0.45;
   setOutsideLight(sk.night, sk.sun);
   compMat.uniforms.hazeCol.value.set(n ? '#3a3468' : sk.sun < 1 ? '#ffd2a8' : '#ffe8cc'); compMat.uniforms.haze.value = n ? 0.08 : (viewRoom === 'bath' || viewRoom === 'toilet') ? 0.06 : 0.12;
+  if (HW_ON){ compMat.uniforms.hazeCol.value.lerp(new THREE.Color('#7a3aa0'), 0.35); compMat.uniforms.haze.value += 0.03; }
   retex(skyTex);
 }
 function toggleLight(which){
@@ -2987,10 +3134,10 @@ function updateSleepInfo(){
   document.getElementById('sleepNote').textContent = 'Сон идёт, даже когда игра закрыта';
 }
 const ROOM_TIPS = {
-  bath: 'Нажми «Мыть» или на ванну, и кэббит залезет в воду. Потом три его пальцем',
-  toilet: 'Когда шкала «Туалет» падает, веди кэббита к лотку. А потом убери за ним совочком',
-  bed: 'Тапни по шкафу, чтобы переодеть кэббита. Уложи спать, когда бодрость низкая',
-  living: 'Тапни по игровому столу, и кэббит сядет играть в мини-игры. На кресло тоже можно сесть'
+  bath: 'Нажми «Мыть» или на ванну, и котокролик залезет в воду. Потом три его пальцем',
+  toilet: 'Когда шкала «Туалет» падает, веди котокролика к лотку. А потом убери за ним совочком',
+  bed: 'Тапни по шкафу, чтобы переодеть котокролика. Уложи спать, когда бодрость низкая',
+  living: 'Тапни по игровому столу, и котокролик сядет играть в мини-игры. На кресло тоже можно сесть'
 };
 function roomTip(){ if (pet.tips['room3_' + pet.at]) return; pet.tips['room3_' + pet.at] = 1; save(); setTimeout(() => toast(ROOM_TIPS[pet.at]), 700); }
 function goRoom(id, dir){
@@ -3079,18 +3226,22 @@ function renderFoods(){
   const box = document.getElementById('foods');
   box.innerHTML = ''; box.style.flexWrap = 'wrap';
   for (const f of FOODS){
+    if (f.ev && !HW_ON && !(f.candy && pet.candy > 0)) continue;
     const locked = f.lv && pet.lvl < f.lv;
-    const b = document.createElement('button'); b.type = 'button'; b.className = 'food' + (locked || pet.coins < f.p ? ' cant' : '');
+    const b = document.createElement('button'); b.type = 'button'; b.className = 'food' + (locked || (f.candy ? pet.candy < f.candy : pet.coins < f.p) ? ' cant' : '');
     b.style.minWidth = '28%';
     const c = document.createElement('canvas'); c.width = 120; c.height = 120;
     const q = c.getContext('2d'); q.scale(2, 2); drawFood(q, f.id, 30, 32, 1.2);
     const nm = document.createElement('span'); nm.textContent = f.n;
-    const pr = document.createElement('small'); pr.textContent = locked ? 'с ' + f.lv + ' уровня' : (f.p ? f.p + ' монет' : 'бесплатно');
+    const pr = document.createElement('small'); pr.textContent = locked ? 'с ' + f.lv + ' уровня' : f.candy ? f.candy + ' конф. (есть ' + pet.candy + ')' : (f.p ? f.p + ' монет' : 'бесплатно');
     b.appendChild(c); b.appendChild(nm); b.appendChild(pr);
     b.addEventListener('click', () => {
       if (locked){ toast('Откроется на ' + f.lv + ' уровне'); return; }
       if (pet.hunger >= 96){ closeSheets(); cab.shake = 1; sfx.no(); toast(pet.name + ' уже сыт'); return; }
-      if (!spendCoins(f.p)){ toast('Не хватает монет'); return; }
+      if (f.candy){
+        if (pet.candy < f.candy){ toast('Не хватает конфет. Их дают за мини-игры'); return; }
+        pet.candy -= f.candy; refreshHud(); save();
+      } else if (!spendCoins(f.p)){ toast('Не хватает монет'); return; }
       closeSheets();
       throwFood(f.id);
     });
@@ -3117,7 +3268,7 @@ document.getElementById('aPlay').addEventListener('click', () => {
     const t = freeSpot(cab.x + 0.9, cab.z + 0.4);
     ball = { x: t.x, y: 0.2, z: t.z, vx: 0, vy: 0, vz: 0, flying: false };
     ballMesh.visible = true;
-    toast('Тапай по мячу, кэббит будет отбивать его головой');
+    toast('Тапай по мячу, котокролик будет отбивать его головой');
   };
   if (cab.state !== 'floor') leaveSpot(start); else start();
 });
@@ -3137,7 +3288,7 @@ function washAction(){
   if (pet.clean >= 97){ toast(pet.name + ' и так чистый'); return; }
   stopModes();
   mode = 'wash'; setActOn('aWash', true);
-  goSpot('tub', () => { sfx.splash(); const R = rooms.bath; const p = new THREE.Vector3(ROOM_X.bath + 0.1, 0.6, -1.95); for (let i = 0; i < 14; i++) addFx('drop', p.x + rand(-0.6, 0.6), p.y, p.z + rand(-0.3, 0.3), rand(-1.2, 1.2), rand(1.5, 3), rand(-0.4, 0.6), 0.08, 1, 9); toast('Три кэббита пальцем, как губкой'); });
+  goSpot('tub', () => { sfx.splash(); const R = rooms.bath; const p = new THREE.Vector3(ROOM_X.bath + 0.1, 0.6, -1.95); for (let i = 0; i < 14; i++) addFx('drop', p.x + rand(-0.6, 0.6), p.y, p.z + rand(-0.3, 0.3), rand(-1.2, 1.2), rand(1.5, 3), rand(-0.4, 0.6), 0.08, 1, 9); toast('Три котокролика пальцем, как губкой'); });
 }
 document.getElementById('aPotty').addEventListener('click', () => pottyAction());
 function pottyAction(){
@@ -3365,7 +3516,7 @@ function update(dt){
         const fd = FOODS.find(x => x.id === f.id);
         pet.hunger = clamp(pet.hunger + fd.food, 0, 100); pet.fun = clamp(pet.fun + fd.fun, 0, 100); pet.toilet = clamp(pet.toilet - fd.food * 0.3, 0, 100); pet.stats.fed++;
         cab.chew = 1.4; cab.bite = f.id; sfx.eat(); addXp(fd.xp); refreshHud(); save();
-        const col = { cake: '#ff9fc4', apple: '#ff5a5a', carrot: '#ff9a3c', salad: '#6fd34a', cookie: '#c98a4a', banana: '#ffe14a', milk: '#ffffff', icecream: '#ffb3cf', pizza: '#ffd36a', donut: '#ff8ab8', sushi: '#ffffff', burger: '#e8a050', golden: '#ffd34d' }[f.id];
+        const col = { cake: '#ff9fc4', apple: '#ff5a5a', carrot: '#ff9a3c', salad: '#6fd34a', cookie: '#c98a4a', banana: '#ffe14a', milk: '#ffffff', icecream: '#ffb3cf', pizza: '#ffd36a', donut: '#ff8ab8', sushi: '#ffffff', burger: '#e8a050', golden: '#ffd34d', candy: '#ff8a2a' }[f.id];
         for (let i = 0; i < 10; i++) addFx('crumb', f.to.x, 0.5, f.to.z, rand(-0.8, 0.8), rand(0.8, 1.8), rand(-0.3, 0.3), 0.05, 0.9, 6, col);
       }
     } else if (f.state === 'eat'){
@@ -3472,6 +3623,7 @@ function render3d(dt, now){
         R.scoop.position.copy(p); R.scoop.rotation.x = rot;
       } else { R.scoop.position.copy(R.scoopHome); R.scoop.rotation.x = 0; }
     }
+    if (R.hwFx) R.hwFx(T);
     if (R.garland) R.garland.userData.stars.forEach(s => { const on = 0.55 + 0.45 * Math.sin(T * 2 + s.userData.ph * 1.7); s.material.opacity = 0.5 + 0.5 * on; s.scale.setScalar(0.18 + 0.06 * on); });
     R.sway.forEach(p => p.children.forEach(c => { if (c.userData.sway != null) c.rotation.z = Math.sin(T * 1.2 + c.userData.sway) * 0.03; }));
   }
@@ -3617,6 +3769,13 @@ function drawWearItem(q, slot, id){
         for (let k = 0; k < 5; k++){ const b = k / 5 * 6.2832; q.beginPath(); q.arc(x + Math.cos(b) * 4.5, y + Math.sin(b) * 4.5, 3.6, 0, 6.2832); q.fill(); q.stroke(); }
         q.fillStyle = '#ffd34d'; q.beginPath(); q.arc(x, y, 3, 0, 6.2832); q.fill();
       }
+    } else if (id === 'witch'){
+      const g2 = q.createLinearGradient(-20, -80, 20, 0); g2.addColorStop(0, '#5a3a8a'); g2.addColorStop(1, '#2a1a48');
+      q.fillStyle = g2; q.beginPath(); q.moveTo(-26, -2); q.quadraticCurveTo(-8, -36, 4, -62); q.quadraticCurveTo(14, -86, 40, -74); q.quadraticCurveTo(18, -66, 26, -2); q.closePath(); q.fill(); q.stroke();
+      q.fillStyle = '#ff8a2a'; q.beginPath(); q.moveTo(-24, -4); q.lineTo(26, -4); q.lineTo(24, -15); q.lineTo(-21, -15); q.closePath(); q.fill(); q.stroke();
+      q.fillStyle = '#ffd34d'; q.beginPath(); rrect(q, -6, -16, 12, 12, 2); q.fill(); q.stroke();
+      q.fillStyle = '#2a1a48'; q.beginPath(); rrect(q, -2.5, -12.5, 5, 5, 1); q.fill();
+      q.fillStyle = '#3a2660'; q.beginPath(); q.ellipse(0, 0, 46, 9, -0.05, 0, 6.2832); q.fill(); q.stroke();
     } else if (id === 'wizard'){
       const g2 = q.createLinearGradient(-20, -70, 20, 0); g2.addColorStop(0, '#9a74ff'); g2.addColorStop(1, '#5a34b8');
       q.fillStyle = g2; q.beginPath(); q.moveTo(-26, -2); q.quadraticCurveTo(-4, -34, 10, -78); q.quadraticCurveTo(14, -34, 28, -2); q.closePath(); q.fill(); q.stroke();
@@ -3666,7 +3825,14 @@ function drawWearItem(q, slot, id){
       q.beginPath(); q.moveTo(-4, -2); q.lineTo(4, -2); q.stroke();
     }
   } else if (slot === 'neck'){
-    if (id === 'bowtie'){
+    if (id === 'vampire'){
+      for (const sx of [-1, 1]){
+        q.fillStyle = '#1e1428'; q.beginPath(); q.moveTo(0, 6); q.lineTo(sx * 36, -26); q.lineTo(sx * 27, -8); q.lineTo(sx * 40, -2); q.lineTo(sx * 16, 10); q.closePath(); q.fill(); q.stroke();
+        q.fillStyle = '#c0163e'; q.beginPath(); q.moveTo(sx * 4, 4); q.lineTo(sx * 29, -19); q.lineTo(sx * 22, -6); q.closePath(); q.fill();
+      }
+      q.fillStyle = '#ffd34d'; q.beginPath(); q.arc(0, 6, 7, 0, 6.2832); q.fill(); q.stroke();
+      q.fillStyle = '#e0204a'; q.beginPath(); q.arc(0, 6, 3.6, 0, 6.2832); q.fill();
+    } else if (id === 'bowtie'){
       q.fillStyle = '#e8304a';
       for (const sx of [-1, 1]){ q.beginPath(); q.moveTo(0, 0); q.lineTo(sx * 20, -11); q.quadraticCurveTo(sx * 24, 0, sx * 20, 11); q.closePath(); q.fill(); q.stroke(); }
       q.fillStyle = '#ff6b7a'; q.beginPath(); rrect(q, -6, -6, 12, 12, 4); q.fill(); q.stroke();
@@ -3729,23 +3895,28 @@ function renderWardrobe(){
   grid.innerHTML = '';
   for (const it of WEAR[wardTab]){
     const key = 'wear_' + wardTab + ':' + it.id;
-    const own = pet.owned.indexOf(key) !== -1 || it.p === 0;
+    const own = pet.owned.indexOf(key) !== -1 || (it.p === 0 && !it.candy);
+    if (it.ev && !HW_ON && !own) continue;
     const locked = !own && it.lv && pet.lvl < it.lv;
     const cur = pet.wear[wardTab] === it.id;
     const b = document.createElement('button'); b.type = 'button';
-    b.className = 'item' + (cur ? ' cur' : '') + (!own && (locked || pet.coins < it.p) ? ' cant' : '');
+    b.className = 'item' + (cur ? ' cur' : '') + (!own && (locked || (it.candy ? pet.candy < it.candy : pet.coins < it.p)) ? ' cant' : '');
     b.appendChild(wearPreview(wardTab, it));
     const n = document.createElement('span'); n.textContent = it.n; b.appendChild(n);
     const pr = document.createElement('span'); pr.className = 'pr';
     if (cur) pr.textContent = it.id === 'none' ? 'Выбрано' : 'Надето';
     else if (own) pr.textContent = it.id === 'none' ? 'Снять' : 'Надеть';
     else if (locked){ pr.className = 'lock'; pr.textContent = 'с ' + it.lv + ' уровня'; }
+    else if (it.candy){ const cc = document.createElement('i'); cc.className = 'candyIc'; pr.appendChild(cc); pr.appendChild(document.createTextNode(String(it.candy))); }
     else { const cc = document.createElement('i'); cc.className = 'coin'; pr.appendChild(cc); pr.appendChild(document.createTextNode(String(it.p))); }
     b.appendChild(pr);
     b.addEventListener('click', () => {
       if (locked){ toast('Откроется на ' + it.lv + ' уровне'); return; }
       if (!own){
-        if (!spendCoins(it.p)){ toast('Не хватает монет'); return; }
+        if (it.candy){
+          if (pet.candy < it.candy){ toast('Нужно ' + it.candy + ' конфет. Их дают за мини-игры'); return; }
+          pet.candy -= it.candy; refreshHud();
+        } else if (!spendCoins(it.p)){ toast('Не хватает монет'); return; }
         pet.owned.push(key); sfx.buy(); toast('Куплено: ' + it.n); addXp(4);
       } else sfx.tap();
       pet.wear[wardTab] = it.id;
@@ -3861,10 +4032,16 @@ function mgOver(){
   pet.fun = clamp(pet.fun + 14, 0, 100); pet.energy = clamp(pet.energy - 7, 0, 100); pet.hunger = clamp(pet.hunger - 4, 0, 100);
   pet.stats.games = (pet.stats.games || 0) + 1;
   const xp = 3 + Math.min(12, Math.floor(mgReward(id, score) / 3));
+  let candy = 0;
+  if (HW_ON && mgReward(id, score) > 0){
+    if (!pet.candyDay || pet.candyDay.d !== todayKey()) pet.candyDay = { d: todayKey(), n: 0 };
+    candy = Math.max(0, Math.min(Math.max(1, Math.min(6, Math.round(mgReward(id, score) / 10))), 30 - pet.candyDay.n));
+    pet.candyDay.n += candy; pet.candy += candy;
+  }
   save();
   document.getElementById('mgeT').textContent = rec && score > 0 ? 'Новый рекорд!' : 'Игра окончена';
   document.getElementById('mgeS').textContent = String(score);
-  document.getElementById('mgeP').textContent = 'Рекорд: ' + Math.max(best, score) + '. Монеты: +' + coins + '. Опыт: +' + xp + (coins === 0 && mgReward(id, score) > 0 ? '. Лимит монет на сегодня исчерпан' : '');
+  document.getElementById('mgeP').textContent = 'Рекорд: ' + Math.max(best, score) + '. Монеты: +' + coins + '. Опыт: +' + xp + (coins === 0 && mgReward(id, score) > 0 ? '. Лимит монет на сегодня исчерпан' : '') + (candy ? '. Конфеты: +' + candy : '');
   setTimeout(() => {
     if (!MG) return;
     document.getElementById('mgEnd').hidden = false;
@@ -3983,13 +4160,23 @@ const MGAMES = {
       G.x = 200; G.y = MH - 160; G.vy = -600; G.vx = 0; G.face = 1; G.cam = 0; G.maxH = 0; G.bonus = 0; G.sq = 0;
       G.plats = []; let y = MH - 100;
       G.plats.push({ x: 200, y: MH - 90, w: 90, k: 'n' });
-      while (y > -MH){ y -= rand(70, 100); G.plats.push(this.mk(y, 0)); }
+      G.lastX = 200;
+      while (y > -MH){ y -= rand(70, 100); this.add(G, y, 0); }
       G.stars = []; for (let i = 0; i < 60; i++) G.stars.push({ x: rand(0, 400), y: rand(0, 2000), r: rand(0.6, 1.8) });
     },
-    mk(y, h){
+    // ломкие платформы - только лишние, между надёжными; надёжные всегда в пределах прыжка
+    add(G, y, h){
+      const p = this.mk(y, h, G.lastX); G.lastX = p.x; G.topY = y; G.plats.push(p);
+      if (h > 1500 && Math.random() < 0.36){
+        const b = this.mk(y - rand(34, 58), h, null); b.k = 'b'; b.vx = 0; b.spring = false;
+        if (Math.abs(b.x - p.x) < 110) b.x = p.x < 200 ? rand(250, 350) : rand(50, 150);
+        G.plats.push(b);
+      }
+    },
+    mk(y, h, lx){
       const r = Math.random();
-      const k = h > 600 && r < 0.22 ? 'm' : h > 1500 && r < 0.36 ? 'b' : 'n';
-      const p = { x: rand(50, 350), y, w: rand(64, 84), k, ph: rand(0, 6), vx: k === 'm' ? rand(50, 90) * (Math.random() < 0.5 ? -1 : 1) : 0 };
+      const k = h > 600 && r < 0.22 ? 'm' : 'n';
+      const p = { x: lx == null ? rand(50, 350) : clamp(lx + rand(-170, 170), 50, 350), y, w: rand(64, 84), k, ph: rand(0, 6), vx: k === 'm' ? rand(50, 90) * (Math.random() < 0.5 ? -1 : 1) : 0 };
       if (Math.random() < 0.08) p.spring = true;
       else if (Math.random() < 0.22) p.carrot = true;
       return p;
@@ -4018,9 +4205,9 @@ const MGAMES = {
       if (target < G.cam) G.cam = target;
       G.maxH = Math.max(G.maxH, Math.floor(-(G.cam) / 10));
       G.score = G.maxH + G.bonus;
-      let top = Math.min(...G.plats.map(p => p.y));
+      let top = G.topY != null ? G.topY : Math.min(...G.plats.map(p => p.y));
       G.plats = G.plats.filter(p => p.y < G.cam + MH + 60);
-      while (top > G.cam - 200){ top -= rand(70, 100) + Math.min(40, h / 200); G.plats.push(this.mk(top, h)); }
+      while (top > G.cam - 200){ top -= rand(70, 100) + Math.min(40, h / 200); this.add(G, top, h); }
       if (G.y > G.cam + MH + 40){ sfx.no(); mgOver(); }
     },
     draw(G, q){
@@ -4337,7 +4524,14 @@ function dailyGift(){
   pet.daily = { d, streak };
   const gift = 20 + streak * 10;
   pet.coins += gift; save(); refreshHud();
-  showModal('Подарок дня', 'День ' + streak + ' подряд: ' + gift + ' монет. Заходи каждый день, подарок растёт до 7 дня!', 'Забрать', () => { sfx.coin(); bumpCoins(); }, 'gift');
+  showModal('Подарок дня', 'День ' + streak + ' подряд: ' + gift + ' монет. Заходи каждый день, подарок растёт до 7 дня!', 'Забрать', () => { sfx.coin(); bumpCoins(); setTimeout(hwAnnounce, 450); }, 'gift');
+  return true;
+}
+function hwAnnounce(){
+  const k = 'hw' + HW_YEAR;
+  if (!HW_ON || pet.tips[k]) return false;
+  pet.tips[k] = 1; pet.candy += 10; save(); refreshHud();
+  showModal('Хэллоуин!', 'В доме котокролика праздник: тыквы, паутина и свечи. За мини-игры у игрового компа теперь дают конфеты. Конфетой можно угостить котокролика, а в шкафу ждут шляпа ведьмы (40 конфет) и воротник вампира (80). Держи 10 конфет для начала! Праздник идёт до 3 ноября.', 'Ура', () => { sfx.coin(); }, 'gift');
   return true;
 }
 function awayReport(){
@@ -4360,13 +4554,15 @@ refreshHud();
 updateRoomUi();
 function afterStart(){
   if (firstRun){
-    showModal('Привет!', 'Это твой кэббит. У него четыре комнаты: гостиная, ванная, туалет и спальня. Листай их стрелками или свайпом, а по мебели можно тапать. Как его назовёшь?', 'Готово', () => {
+    showModal('Привет!', 'Это твой котокролик. У него четыре комнаты: гостиная, ванная, туалет и спальня. Листай их стрелками или свайпом, а по мебели можно тапать. Как его назовёшь?', 'Готово', () => {
       toast('Держи 150 монет на обустройство комнаты');
       pet.daily = { d: todayKey(), streak: 1 }; save(); roomTip();
+      setTimeout(hwAnnounce, 2600);
     }, 'hello', true);
-  } else { if (!dailyGift()) awayReport(); else setTimeout(awayReport, 400); roomTip(); }
+  } else { if (!dailyGift()){ if (!hwAnnounce()) awayReport(); } else setTimeout(awayReport, 400); roomTip(); }
 }
 requestAnimationFrame(frame);
+document.getElementById('hwBanner').hidden = !HW_ON;
 
 if ('serviceWorker' in navigator && location.protocol === 'https:') window.addEventListener('load', () => { navigator.serviceWorker.register('sw.js').catch(() => {}); });
 </script>
